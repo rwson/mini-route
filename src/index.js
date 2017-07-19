@@ -319,18 +319,26 @@
 
         go: function(name, params) {
             var routes = this.routes,
-                cur, target, targetUrl;
+                cur, target, param, targetUrl;
             _loop(routes, function(cur, i, routes) {
                 if (cur.name === name) {
                     target = cur;
                 }
             });
 
-            if (target.params.length) {
+            if (target.params && target.params.length) {
+                param = {};
+                targetUrl = target.prefix;
+                _loop(target.params, function(key) {
+                    param[key] = params[key] || "";
+                    targetUrl += ("/" + params[key]);
+                });
+            } else {
 
             }
 
-            if (isPushpushState) {
+            if (!isPushpushState) {
+                location.hash = targetUrl;
             } else {
             }
         },
