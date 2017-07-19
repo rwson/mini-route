@@ -117,3 +117,12 @@ window.onload = function() {
 ```
 
 当url配置为带参数的rest风格时，handler的第一个参数即为当前页面路由的参数和值的键值对
+
+#### 路由切换生命周期
+
+| 名称                     | 意义                              |
+| ---------------------- | ------------------------------- |
+| route:change:start     | 路由切换开始，在发起获取模板请求之前触发            |
+| route:change:success   | 路由切换成功，在获取模板返回成功后触发，模板未被插入到DOM中 |
+| route:change:failed    | 路由切换失败，发生异常时触发，并且有相关异常参数        |
+| route:change:completed | 路由切换完成，模板已被插入到DOM中              |

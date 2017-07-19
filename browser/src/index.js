@@ -192,6 +192,7 @@
 
             if (readyState === 4) {
                 if (status >= 200 && status < 300 || status === 304) {
+                    ob.pub("route:change:success");
                     template = responseText;
                     container = doc.createElement("div");
                     container.class = (name + "-container");
@@ -201,7 +202,6 @@
                     }
                     rootEl.appendChild(container);
                     lastContainer = container;
-                    ob.pub("route:change:success");
                     ob.pub("route:change:completed");
                     if (_typeOf(callback) === "Function") {
                         callback();
@@ -271,7 +271,7 @@
         },
 
         config: function(cfgs) {
-            
+
             var self = this,
                 routes = cfgs.routes,
                 typeRoute = _typeOf(routes),
