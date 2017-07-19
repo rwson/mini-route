@@ -1,0 +1,30 @@
+{
+  "name": "mini-route",
+  "version": "1.0.0",
+  "description": "",
+  "main": "node-dist/index.js",
+  "scripts": {
+    "watch": "babel node --watch --out-dir node-dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rwson/mini-route.git"
+  },
+  "keywords": [],
+  "author": "rwson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rwson/mini-route/issues"
+  },
+  "homepage": "https://github.com/rwson/mini-route#readme",
+  "dependencies": {
+    "http-errors": "^1.6.1",
+    "methods": "^1.1.2",
+    "path-to-regexp": "^1.7.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.25.0",
+    "babel-preset-stage-3": "^6.24.1"
+  }
+}
