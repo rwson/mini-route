@@ -271,6 +271,7 @@
         },
 
         config: function(cfgs) {
+            
             var self = this,
                 routes = cfgs.routes,
                 typeRoute = _typeOf(routes),
