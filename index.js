@@ -3,7 +3,7 @@ window.onload = function() {
 
 	var router = MiniRoute(document.querySelector("#view"));
 	router.config({
-		pushState: false,
+		pushState: true,
 		routes: [
 			{
 				name: "test111",

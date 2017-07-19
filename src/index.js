@@ -13,7 +13,9 @@
         prefix = location.protocol + "//" + location.host,
         caches = {},
         lastContainer,
-        isPushpushState;
+        isPushpushState,
+        pushState,
+        replaceState;
 
     function _loop(obj, interator) {
         var type = _typeOf(obj);
@@ -42,6 +44,21 @@
 
     function _typeOf(obj) {
         return {}.toString.call(obj).slice(8, -1);
+    }
+
+    function _wrapperEvent(evtName) {
+        var origin = history[evtName];
+        return function() {
+            var ev = new Event(evtName),
+                args = [].slice.call(arguments);
+            ev.argus = {
+                state: args[0],
+                title: args[1],
+                path: args[2]
+            };
+            win.dispatchEvent(ev);
+            return origin.apply(history, [].slice.call(arguments));
+        };
     }
 
     function _ensureRouteObj(route) {
@@ -101,9 +118,12 @@
             tagName = target.tagName.toLowerCase(),
             href = target.href;
         if (tagName === "a" && href) {
-            if (isPushpushState) {} else {
+            if (!isPushpushState) {
                 href = href.replace(prefix, "/").replace(/^\/\#/, "/");
                 location.hash = href;
+            } else {
+                href = href.replace(prefix, "").replace(/^\/\#/, "");
+                pushState({}, "", href);
             }
         }
         eve.preventDefault();
@@ -130,10 +150,8 @@
         };
     }
 
-    function _getRoute(routes) {
+    function _getRoute(routes, path) {
         var path, cur, target, params, paramObj, res;
-
-        path = location.hash.replace("#", "");
         paramObj = {};
 
         _loop(routes, function(routeChild, i, routes) {
@@ -150,12 +168,14 @@
             }
         });
 
-        res = {
-            path: path,
-            params: paramObj,
-            name: target.name,
-            origin: target
-        };
+        if (target) {
+            res = {
+                path: path,
+                params: paramObj,
+                name: target.name,
+                origin: target
+            };
+        }
         return res;
     }
 
@@ -231,6 +251,9 @@
             });
         }
     };
+
+    pushState = _wrapperEvent("pushState");
+    replaceState = _wrapperEvent("replaceState");
 
     function MiniRoute(el) {
         return new MiniRoute.fn.init(el);
@@ -334,29 +357,69 @@
                     targetUrl += ("/" + params[key]);
                 });
             } else {
-
+                targetUrl = target.url;
             }
 
             if (!isPushpushState) {
                 location.hash = targetUrl;
             } else {
+                targetUrl = targetUrl.replace(/^\/+/, "/");
+                pushState({}, "", targetUrl);
             }
         },
 
         start: function() {
             var routes = this.routes,
                 self = this,
-                routeObj;
+                routeObj, path, argus;
             if (!isPushpushState) {
                 win.onhashchange = function() {
-                    routeObj = _getRoute(routes);
-                    self.change(routeObj);
+                    path = location.hash.replace("#", "");
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
                 };
                 if (location.hash) {
-                    routeObj = _getRoute(routes);
-                    self.change(routeObj);
+                    path = location.hash.replace("#", "");
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
                 }
-            } else {}
+            } else {
+                win.addEventListener("replaceState", function(ev) {
+                    argus = ev.argus;
+                    path = argus.path;
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
+                });
+                win.addEventListener("pushState", function(ev) {
+                    argus = ev.argus;
+                    path = argus.path;
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
+                });
+
+                win.onstatechange = function() {
+                    path = location.pathname;
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
+                };
+                if (location.pathname) {
+                    path = location.pathname;
+                    routeObj = _getRoute(routes, path);
+                    if (_typeOf(routeObj) === "Object") {
+                        self.change(routeObj);
+                    }
+                }
+            }
         },
 
         on: function(name, handler, context) {
